@@ -23,20 +23,6 @@ class Book(db.Model):
     rating = db.Column(db.Float, nullable=False)
 
 
-# with app.app_context():
-#     db.create_all()
-
-# # Create a record
-# with app.app_context():
-#     new_book = Book(title="Harry Potter", author="J. K. Rowling", rating=9.3)
-#     # new_book = Book(title="Harry Potter", author="J. K. Rowling", rating=9.3)
-#     db.session.add(new_book)
-#     db.session.commit()
-#
-
-# all_books = []
-
-
 @app.route('/')
 def home():
     # read all books
@@ -59,14 +45,18 @@ def add():
 
 @app.route("/edit/<int:index>", methods=["GET", "POST"])
 def edit(index):
-    book = db.session.query(Book).where(Book.id == index)
-    print(book)
-    return render_template("edit.html", book=book)
+    if request.method == "POST":
+        # create a record
+        book_to_update = db.get_or_404(Book, index)
+        book_to_update.rating = request.form['rating']
+        db.session.commit()
+        return redirect(url_for('home'))
 
-
-# @app.route("/delete", methods=["GET", "POST"])
-# def delete():
-#     return render_template("delete.html")
+    all_books = db.session.query(Book).all()
+    for book in all_books:
+        if book.id == index:
+            return render_template("edit.html", title=book.title, rating=book.rating)
+    return render_template("edit.html")
 
 
 if __name__ == "__main__":
