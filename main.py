@@ -59,5 +59,13 @@ def edit(index):
     return render_template("edit.html")
 
 
+@app.route("/<int:index>", methods=["GET", "POST"])
+def delete(index):
+    book_to_delete = db.get_or_404(Book, index)
+    db.session.delete(book_to_delete)
+    db.session.commit()
+    return redirect(url_for('home'))
+
+
 if __name__ == "__main__":
     app.run(debug=True)
