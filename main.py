@@ -45,18 +45,12 @@ def add():
 
 @app.route("/edit/<int:index>", methods=["GET", "POST"])
 def edit(index):
+    book_to_update = db.get_or_404(Book, index)
     if request.method == "POST":
-        # create a record
-        book_to_update = db.get_or_404(Book, index)
         book_to_update.rating = request.form['rating']
         db.session.commit()
         return redirect(url_for('home'))
-
-    all_books = db.session.query(Book).all()
-    for book in all_books:
-        if book.id == index:
-            return render_template("edit.html", title=book.title, rating=book.rating)
-    return render_template("edit.html")
+    return render_template("edit.html", title=book_to_update.title, rating=book_to_update.rating)
 
 
 @app.route("/<int:index>", methods=["GET", "POST"])
